@@ -25,11 +25,6 @@ public class InfiniteViewPager extends ViewPager {
 
     private final EqualizerManager mEqManager;
 
-    @Override
-    public boolean hasOverlappingRendering() {
-        return false;
-    }
-
     public InfiniteViewPager(Context context) {
         super(context);
         mEqManager = MasterConfigControl.getInstance(context).getEqualizerManager();
@@ -38,6 +33,11 @@ public class InfiniteViewPager extends ViewPager {
     public InfiniteViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         mEqManager = MasterConfigControl.getInstance(context).getEqualizerManager();
+    }
+
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
     }
 
     @Override

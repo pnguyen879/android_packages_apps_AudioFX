@@ -70,19 +70,19 @@ public abstract class EffectSet {
     }
 
     /**
-     * Called when the output device has changed. All cached data should be cleared at this point.
-     */
-    public void setDevice(AudioDeviceInfo deviceInfo) {
-        mDeviceInfo = deviceInfo;
-    }
-
-    /**
      * Return the current active output device
      *
      * @return deviceInfo
      */
     public AudioDeviceInfo getDevice() {
         return mDeviceInfo;
+    }
+
+    /**
+     * Called when the output device has changed. All cached data should be cleared at this point.
+     */
+    public void setDevice(AudioDeviceInfo deviceInfo) {
+        mDeviceInfo = deviceInfo;
     }
 
     /**

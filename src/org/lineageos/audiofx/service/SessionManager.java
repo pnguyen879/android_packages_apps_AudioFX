@@ -40,28 +40,23 @@ class SessionManager implements AudioOutputChangeListener.AudioOutputChangedCall
 
     private static final String TAG = AudioFxService.TAG;
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
-    private final Context mContext;
-    private final Handler mHandler;
-    private final DevicePreferenceManager mDevicePrefs;
-
-    /**
-     * All fields ending with L should be locked on {@link #mAudioSessionsL}
-     */
-    private final SparseArray<EffectSet> mAudioSessionsL = new SparseArray<EffectSet>();
-
-
-    private AudioDeviceInfo mCurrentDevice = null;
-
     // audio priority handler messages
     private static final int MSG_UPDATE_DSP = 100;
     private static final int MSG_ADD_SESSION = 101;
     private static final int MSG_REMOVE_SESSION = 102;
     private static final int MSG_UPDATE_FOR_SESSION = 103;
     private static final int MSG_UPDATE_EQ_OVERRIDE = 104;
+    private final Context mContext;
+    private final Handler mHandler;
+    private final DevicePreferenceManager mDevicePrefs;
+    /**
+     * All fields ending with L should be locked on {@link #mAudioSessionsL}
+     */
+    private final SparseArray<EffectSet> mAudioSessionsL = new SparseArray<EffectSet>();
+    private AudioDeviceInfo mCurrentDevice = null;
 
     public SessionManager(Context context, Handler handler, DevicePreferenceManager devicePrefs,
-            AudioDeviceInfo outputDevice) {
+                          AudioDeviceInfo outputDevice) {
         mContext = context;
         mDevicePrefs = devicePrefs;
         mCurrentDevice = outputDevice;
@@ -237,6 +232,30 @@ class SessionManager implements AudioOutputChangeListener.AudioOutputChangedCall
         }
     }
 
+    /**
+     * Updates the backend and notifies the frontend when the output device has changed
+     */
+    @Override
+    public void onAudioOutputChanged(boolean firstChange, AudioDeviceInfo outputDevice) {
+        synchronized (mAudioSessionsL) {
+            if (mCurrentDevice == null ||
+                    (outputDevice != null && mCurrentDevice.getId() != outputDevice.getId())) {
+                mCurrentDevice = outputDevice;
+            }
+
+            EffectSet session = null;
+
+            // Update all the sessions for this output which are moving
+            final int N = mAudioSessionsL.size();
+            for (int i = 0; i < N; i++) {
+                session = mAudioSessionsL.valueAt(i);
+
+                session.setDevice(mCurrentDevice);
+                updateBackendLocked(ALL_CHANGED, session);
+            }
+        }
+    }
+
     private class AudioServiceHandler implements Handler.Callback {
 
         @Override
@@ -346,30 +365,6 @@ class SessionManager implements AudioOutputChangeListener.AudioOutputChangedCall
                         break;
                 }
                 return true;
-            }
-        }
-    }
-
-    /**
-     * Updates the backend and notifies the frontend when the output device has changed
-     */
-    @Override
-    public void onAudioOutputChanged(boolean firstChange, AudioDeviceInfo outputDevice) {
-        synchronized (mAudioSessionsL) {
-            if (mCurrentDevice == null ||
-                    (outputDevice != null && mCurrentDevice.getId() != outputDevice.getId())) {
-                mCurrentDevice = outputDevice;
-            }
-
-            EffectSet session = null;
-
-            // Update all the sessions for this output which are moving
-            final int N = mAudioSessionsL.size();
-            for (int i = 0; i < N; i++) {
-                session = mAudioSessionsL.valueAt(i);
-
-                session.setDevice(mCurrentDevice);
-                updateBackendLocked(ALL_CHANGED, session);
             }
         }
     }

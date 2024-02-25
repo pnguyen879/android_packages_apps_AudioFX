@@ -39,6 +39,11 @@ public class Compatibility {
     // run "setprop log.tag.AudioFXCompat DEBUG" to turn on logging
     private final static boolean LOG = Log.isLoggable(TAG, Log.DEBUG);
 
+    private static void log(String out) {
+        if (LOG) {
+            Log.d(TAG, out);
+        }
+    }
 
     /**
      * This activity has an intent filter with the highest possible priority, so it will always be
@@ -227,12 +232,6 @@ public class Compatibility {
                             PackageManager.DONT_KILL_APP);
                 }
             }
-        }
-    }
-
-    private static void log(String out) {
-        if (LOG) {
-            Log.d(TAG, out);
         }
     }
 }

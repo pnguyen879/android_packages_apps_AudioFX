@@ -29,13 +29,11 @@ public class ControlsFragment extends AudioFxBaseFragment {
 
     private static final String TAG = ControlsFragment.class.getSimpleName();
     private static final boolean DEBUG = false;
-
+    private final CompoundButton.OnCheckedChangeListener mReverbListener
+            = (buttonView, isChecked) -> mConfig.setReverbEnabled(isChecked);
     KnobCommander mKnobCommander;
     KnobContainer mKnobContainer;
     MaterialSwitch mReverbSwitch;
-
-    private final CompoundButton.OnCheckedChangeListener mReverbListener
-            = (buttonView, isChecked) -> mConfig.setReverbEnabled(isChecked);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,7 +101,7 @@ public class ControlsFragment extends AudioFxBaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.controls_generic, container, false);
     }
 

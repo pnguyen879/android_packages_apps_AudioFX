@@ -29,40 +29,12 @@ public class EqualizerManager {
 
     private static final String TAG = EqualizerManager.class.getSimpleName();
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
-    private final MasterConfigControl mConfig;
-    private final Context mContext;
-
-    private float mMinFreq;
-    private float mMaxFreq;
-
-    private float mMinDB;
-    private float mMaxDB;
-    private int mNumBands;
-    private CompoundButton.OnCheckedChangeListener mLockChangeListener;
-
-    /*
-     * presets from the library custom preset.
-     */
-    private int mPredefinedPresets;
-    private float[] mCenterFreqs;
-    private float[] mGlobalLevels;
-
-    private final AtomicBoolean mAnimatingToCustom = new AtomicBoolean(false);
-
-    // whether we are in between presets, animating them and such
-    private boolean mChangingPreset = false;
-
-    private int mCurrentPreset;
-
-    private final ArrayList<Preset> mEqPresets = new ArrayList<Preset>();
-    private int mEQCustomPresetPosition;
-
-    private String mZeroedBandString;
-
     private static final int MSG_SAVE_PRESETS = 1;
     private static final int MSG_SEND_EQ_OVERRIDE = 2;
-
+    private final MasterConfigControl mConfig;
+    private final Context mContext;
+    private final AtomicBoolean mAnimatingToCustom = new AtomicBoolean(false);
+    private final ArrayList<Preset> mEqPresets = new ArrayList<Preset>();
     private final Handler mHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
@@ -77,12 +49,33 @@ public class EqualizerManager {
             return true;
         }
     });
+    private float mMinFreq;
+    private float mMaxFreq;
+    private float mMinDB;
+    private float mMaxDB;
+    private int mNumBands;
+    private CompoundButton.OnCheckedChangeListener mLockChangeListener;
+    /*
+     * presets from the library custom preset.
+     */
+    private int mPredefinedPresets;
+    private float[] mCenterFreqs;
+    private float[] mGlobalLevels;
+    // whether we are in between presets, animating them and such
+    private boolean mChangingPreset = false;
+    private int mCurrentPreset;
+    private int mEQCustomPresetPosition;
+    private String mZeroedBandString;
 
     public EqualizerManager(Context context, MasterConfigControl config) {
         mContext = context;
         mConfig = config;
 
         applyDefaults();
+    }
+
+    public static double lin2dB(double rho) {
+        return rho != 0 ? Math.log(rho) / Math.log(10) * 20 : -99.9;
     }
 
     public void applyDefaults() {
@@ -376,16 +369,16 @@ public class EqualizerManager {
                 userPreset, userPreset, userPreset);
     }
 
+    /*===============
+     * eq methods
+     *===============*/
+
     /**
      * @return Get the current preset index
      */
     public int getCurrentPresetIndex() {
         return mCurrentPreset;
     }
-
-    /*===============
-     * eq methods
-     *===============*/
 
     public float projectX(double freq) {
         double pos = Math.log(freq);
@@ -403,10 +396,6 @@ public class EqualizerManager {
     public float projectY(double dB) {
         double pos = (dB - mMinDB) / (mMaxDB - mMinDB);
         return (float) (1 - pos);
-    }
-
-    public static double lin2dB(double rho) {
-        return rho != 0 ? Math.log(rho) / Math.log(10) * 20 : -99.9;
     }
 
     public float getMinFreq() {
@@ -595,9 +584,7 @@ public class EqualizerManager {
 
     private void updateGlobalLevels(int presetIndexToCopy) {
         final float[] presetLevels = getPresetLevels(presetIndexToCopy);
-        for (int i = 0; i < mGlobalLevels.length; i++) {
-            mGlobalLevels[i] = presetLevels[i];
-        }
+        System.arraycopy(presetLevels, 0, mGlobalLevels, 0, mGlobalLevels.length);
     }
 
     // I AM SO LAZY!

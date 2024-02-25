@@ -62,6 +62,15 @@ public class DevicePreferenceManager
         mCurrentDevice = device;
     }
 
+    private static int findInList(String needle, List<String> haystack) {
+        for (int i = 0; i < haystack.size(); i++) {
+            if (haystack.get(i).equalsIgnoreCase(needle)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public boolean initDefaults() {
         try {
             saveAndApplyDefaults(false);
@@ -186,15 +195,6 @@ public class DevicePreferenceManager
                         CURRENT_PREFS_INT_VERSION)
                 .putBoolean(Constants.SAVED_DEFAULTS, true)
                 .apply();
-    }
-
-    private static int findInList(String needle, List<String> haystack) {
-        for (int i = 0; i < haystack.size(); i++) {
-            if (haystack.get(i).equalsIgnoreCase(needle)) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     /**

@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewStub;
 import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
@@ -34,27 +33,23 @@ import org.lineageos.audiofx.service.DevicePreferenceManager;
 
 public class ActivityMusic extends Activity {
 
-    private static final String TAG = ActivityMusic.class.getSimpleName();
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
     public static final String TAG_AUDIOFX = "audiofx";
     public static final String EXTRA_CALLING_PACKAGE = "audiofx::extra_calling_package";
-
-    private MaterialSwitch mCurrentDeviceToggle;
+    private static final String TAG = ActivityMusic.class.getSimpleName();
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     MasterConfigControl mConfig;
-    String mCallingPackage;
-
-    private boolean mWaitingForService = true;
-    private SharedPreferences.OnSharedPreferenceChangeListener mServiceReadyObserver;
-
     private final CompoundButton.OnCheckedChangeListener mGlobalEnableToggleListener
             = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(final CompoundButton buttonView,
-                final boolean isChecked) {
+                                     final boolean isChecked) {
             mConfig.setCurrentDeviceEnabled(isChecked);
         }
     };
+    String mCallingPackage;
+    private MaterialSwitch mCurrentDeviceToggle;
+    private boolean mWaitingForService = true;
+    private SharedPreferences.OnSharedPreferenceChangeListener mServiceReadyObserver;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -67,15 +62,15 @@ public class ActivityMusic extends Activity {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_fragment),
                 (view, insets) -> {
-            Insets systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            view.setPadding(
-                    view.getPaddingLeft(),
-                    systemInsets.top,
-                    view.getPaddingRight(),
-                    systemInsets.bottom
-            );
-            return WindowInsetsCompat.CONSUMED;
-        });
+                    Insets systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    view.setPadding(
+                            view.getPaddingLeft(),
+                            systemInsets.top,
+                            view.getPaddingRight(),
+                            systemInsets.bottom
+                    );
+                    return WindowInsetsCompat.CONSUMED;
+                });
 
         mCallingPackage = getIntent().getStringExtra(EXTRA_CALLING_PACKAGE);
         Log.i(TAG, "calling package: " + mCallingPackage);
@@ -90,7 +85,7 @@ public class ActivityMusic extends Activity {
             mServiceReadyObserver = new SharedPreferences.OnSharedPreferenceChangeListener() {
                 @Override
                 public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                        String key) {
+                                                      String key) {
                     if (key.equals(Constants.SAVED_DEFAULTS) && defaultsSetup()) {
                         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
                         mConfig.onResetDefaults();

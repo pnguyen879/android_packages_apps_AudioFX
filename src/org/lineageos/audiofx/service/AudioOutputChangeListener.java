@@ -22,19 +22,12 @@ import java.util.List;
 public class AudioOutputChangeListener extends AudioDeviceCallback {
 
     private static final String TAG = "AudioFx-" + AudioOutputChangeListener.class.getSimpleName();
-
-    private boolean mInitial = true;
-
     private final Context mContext;
     private final AudioManager mAudioManager;
     private final Handler mHandler;
-    private int mLastDevice = -1;
-
     private final ArrayList<AudioOutputChangedCallback> mCallbacks = new ArrayList<>();
-
-    public interface AudioOutputChangedCallback {
-        void onAudioOutputChanged(boolean firstChange, AudioDeviceInfo outputDevice);
-    }
+    private boolean mInitial = true;
+    private int mLastDevice = -1;
 
     public AudioOutputChangeListener(Context context, Handler handler) {
         mContext = context;
@@ -116,5 +109,9 @@ public class AudioOutputChangeListener extends AudioDeviceCallback {
     public AudioDeviceInfo getCurrentDevice() {
         final List<AudioDeviceInfo> devices = getConnectedOutputs();
         return devices.size() > 0 ? devices.get(0) : null;
+    }
+
+    public interface AudioOutputChangedCallback {
+        void onAudioOutputChanged(boolean firstChange, AudioDeviceInfo outputDevice);
     }
 }

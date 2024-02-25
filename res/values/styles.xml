@@ -6,6 +6,7 @@
      SPDX-License-Identifier: Apache-2.0
 -->
 <resources>
+
     <style name="AppThemeV2" parent="android:Theme.Material">
         <item name="android:actionBarStyle">@style/ActionBar</item>
         <item name="android:colorAccent">@color/white</item>

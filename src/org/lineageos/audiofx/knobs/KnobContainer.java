@@ -37,18 +37,14 @@ public class KnobContainer extends LinearLayout
 
     private static final int MSG_EXPAND = 0;
     private static final int MSG_CONTRACT = 1;
-
+    private final Context mContext;
     private ViewGroup mBassContainer;
     private ViewGroup mVirtualizerContainer;
     private RadialKnob mBassKnob;
     private RadialKnob mVirtualizerKnob;
-
     private H mHandler;
-
     private KnobCommander mKnobCommander;
-
     private long mLastDisabledNotifyTime = -1;
-    private Context mContext;
 
     public KnobContainer(Context context) {
         super(context);

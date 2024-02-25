@@ -30,12 +30,10 @@ import org.lineageos.audiofx.R;
 
 public class RadialKnob extends View {
 
+    public static final float REGULAR_SCALE = 0.8f;
+    public static final float TOUCHING_SCALE = 1f;
     private static final String TAG = RadialKnob.class.getSimpleName();
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
-    public static final float REGULAR_SCALE = 0.8f;
-
-    public static final float TOUCHING_SCALE = 1f;
     private static final int DO_NOT_VIBRATE_THRESHOLD = 100;
 
     private static final int DEGREE_OFFSET = -225;
@@ -43,7 +41,13 @@ public class RadialKnob extends View {
     private static final int MAX_DEGREES = 270;
 
     private final Paint mPaint, mTextPaint;
-
+    private final RectF mOuterRect = new RectF();
+    private final RectF mInnerRect = new RectF();
+    private final int mBackgroundArcColor;
+    private final int mBackgroundArcColorDisabled;
+    private final int mRectPadding;
+    private final int mStrokeWidth;
+    private final float mTextOffset;
     ValueAnimator mAnimator;
     float mOffProgress;
     boolean mAnimating = false;
@@ -60,17 +64,9 @@ public class RadialKnob extends View {
     private boolean mMoved;
     private int mWidth = 0;
     private RectF mRectF;
-    private final RectF mOuterRect = new RectF();
-    private final RectF mInnerRect = new RectF();
     private float mLastAngle;
     private Long mLastVibrateTime;
     private int mHighlightColor;
-    private final int mBackgroundArcColor;
-    private final int mBackgroundArcColorDisabled;
-    private final int mRectPadding;
-    private final int mStrokeWidth;
-    private final float mTextOffset;
-
     private Context mContext;
 
     public RadialKnob(Context context, AttributeSet attrs, int defStyle) {
@@ -114,6 +110,14 @@ public class RadialKnob extends View {
     public RadialKnob(Context context) {
         this(context, null);
         mContext = context;
+    }
+
+    private static boolean inCircle(float x, float y, float circleCenterX, float circleCenterY,
+                                    float circleRadius) {
+        double dx = Math.pow(x - circleCenterX, 2);
+        double dy = Math.pow(y - circleCenterY, 2);
+
+        return (dx + dy) < Math.pow(circleRadius, 2);
     }
 
     public void setValue(int value) {
@@ -483,15 +487,6 @@ public class RadialKnob extends View {
             angle += (360 + degreeOffset);
         }
         return angle;
-    }
-
-
-    private static boolean inCircle(float x, float y, float circleCenterX, float circleCenterY,
-            float circleRadius) {
-        double dx = Math.pow(x - circleCenterX, 2);
-        double dy = Math.pow(y - circleCenterY, 2);
-
-        return (dx + dy) < Math.pow(circleRadius, 2);
     }
 
     @Override

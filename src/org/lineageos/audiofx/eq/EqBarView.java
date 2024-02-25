@@ -22,9 +22,8 @@ public class EqBarView extends FrameLayout implements StateCallbacks.EqUpdatedCa
 
     private static final String TAG = EqBarView.class.getSimpleName();
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
+    private final Context mContext;
     private EqualizerManager mEqManager;
-
     private float mNormalWidth;
     private float mParentHeight = -1;
     private float mLastTouchX;
@@ -34,7 +33,6 @@ public class EqBarView extends FrameLayout implements StateCallbacks.EqUpdatedCa
     private int mParentTop;
     private Integer mIndex;
     private float mInitialLevel;
-    private final Context mContext;
 
     public EqBarView(Context context) {
         super(context);

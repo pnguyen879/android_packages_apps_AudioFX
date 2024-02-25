@@ -15,6 +15,6 @@
 -->
 
 <resources>
-     <dimen name="radial_rect_padding">8dp</dimen>
-     <dimen name="radial_knob_stroke">15dp</dimen>
+    <dimen name="radial_rect_padding">8dp</dimen>
+    <dimen name="radial_knob_stroke">15dp</dimen>
 </resources>

@@ -43,38 +43,35 @@ import java.util.Map;
 
 public class AudioFxFragment extends Fragment implements StateCallbacks.DeviceChangedCallback {
 
-    private static final String TAG = AudioFxFragment.class.getSimpleName();
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-
     public static final String TAG_EQUALIZER = "equalizer";
     public static final String TAG_CONTROLS = "controls";
-
-    int mCurrentBackgroundColor;
-
-    // whether we are in the middle of animating while switching devices
-    boolean mDeviceChanging;
-
-    private MenuItem mMenuDevices;
-
+    private static final String TAG = AudioFxFragment.class.getSimpleName();
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private final Map<MenuItem, AudioDeviceInfo> mMenuItems =
+            new ArrayMap<MenuItem, AudioDeviceInfo>();
     // current selected index
     public int mSelectedPosition = 0;
-
+    int mCurrentBackgroundColor;
+    // whether we are in the middle of animating while switching devices
+    boolean mDeviceChanging;
     EqualizerFragment mEqFragment;
     ControlsFragment mControlFragment;
 
     InterceptableLinearLayout mInterceptLayout;
+    private MenuItem mMenuDevices;
     private ValueAnimator mColorChangeAnimator;
-
+    private final ValueAnimator.AnimatorUpdateListener mColorUpdateListener
+            = new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            updateBackgroundColors((Integer) animation.getAnimatedValue(), false);
+        }
+    };
     private int mDisabledColor;
-
     private MasterConfigControl mConfig;
     private EqualizerManager mEqManager;
-
     private AudioDeviceInfo mSystemDevice;
     private AudioDeviceInfo mUserSelection;
-
-    private final Map<MenuItem, AudioDeviceInfo> mMenuItems =
-            new ArrayMap<MenuItem, AudioDeviceInfo>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -155,7 +152,7 @@ public class AudioFxFragment extends Fragment implements StateCallbacks.DeviceCh
         mCurrentBackgroundColor = !mConfig.isCurrentDeviceEnabled()
                 ? mDisabledColor
                 : mEqManager.getAssociatedPresetColorHex(
-                        mEqManager.getCurrentPresetIndex());
+                mEqManager.getCurrentPresetIndex());
         updateBackgroundColors(mCurrentBackgroundColor, false);
 
         promptIfNotDefault();
@@ -335,7 +332,7 @@ public class AudioFxFragment extends Fragment implements StateCallbacks.DeviceCh
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         if (container == null) {
             Log.w(TAG, "container is null.");
             // no longer displaying this fragment
@@ -395,7 +392,7 @@ public class AudioFxFragment extends Fragment implements StateCallbacks.DeviceCh
     }
 
     public void animateBackgroundColorTo(int colorTo, Animator.AnimatorListener listener,
-            ColorUpdateListener updateListener) {
+                                         ColorUpdateListener updateListener) {
         if (mColorChangeAnimator != null) {
             mColorChangeAnimator.cancel();
             mColorChangeAnimator = null;
@@ -457,13 +454,9 @@ public class AudioFxFragment extends Fragment implements StateCallbacks.DeviceCh
         animateBackgroundColorTo(colorTo, animatorListener, null);
     }
 
-    private final ValueAnimator.AnimatorUpdateListener mColorUpdateListener
-            = new ValueAnimator.AnimatorUpdateListener() {
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            updateBackgroundColors((Integer) animation.getAnimatedValue(), false);
-        }
-    };
+    public int getDisabledColor() {
+        return mDisabledColor;
+    }
 
     public static class ColorUpdateListener implements ValueAnimator.AnimatorUpdateListener {
 
@@ -477,9 +470,5 @@ public class AudioFxFragment extends Fragment implements StateCallbacks.DeviceCh
         public void onAnimationUpdate(ValueAnimator animation) {
             mFrag.setBackgroundColor((Integer) animation.getAnimatedValue(), false);
         }
-    }
-
-    public int getDisabledColor() {
-        return mDisabledColor;
     }
 }
