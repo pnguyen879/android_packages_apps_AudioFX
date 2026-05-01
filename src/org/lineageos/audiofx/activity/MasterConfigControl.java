@@ -17,7 +17,6 @@ import static android.media.AudioDeviceInfo.TYPE_USB_DEVICE;
 import static android.media.AudioDeviceInfo.TYPE_USB_HEADSET;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
-import static android.media.AudioDeviceInfo.convertDeviceTypeToInternalDevice;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -36,6 +35,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.lineageos.audiofx.Constants;
 import org.lineageos.audiofx.service.AudioFxService;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -154,6 +154,16 @@ public class MasterConfigControl {
                 return appendProductName(info, Constants.DEVICE_PREFIX_CAST);
             default:
                 return Constants.DEVICE_SPEAKER;
+        }
+    }
+
+    private static int convertDeviceTypeToInternalDevice(int type) {
+        try {
+            Method method = AudioDeviceInfo.class.getMethod("convertDeviceTypeToInternalDevice",
+                    int.class);
+            return (int) method.invoke(null, type);
+        } catch (Exception e) {
+            return 0;
         }
     }
 
@@ -279,9 +289,18 @@ public class MasterConfigControl {
         mEqManager.onPostDeviceChanged();
     }
 
+    private int getDevicesForStream(int stream) {
+        try {
+            Method method = AudioManager.class.getMethod("getDevicesForStream", int.class);
+            return (int) method.invoke(mAudioManager, stream);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     public AudioDeviceInfo getSystemDevice() {
         if (mCurrentDevice == null) {
-            final int forMusic = mAudioManager.getDevicesForStream(AudioManager.STREAM_MUSIC);
+            final int forMusic = getDevicesForStream(AudioManager.STREAM_MUSIC);
             for (AudioDeviceInfo ai : getConnectedDevices()) {
                 if ((convertDeviceTypeToInternalDevice(ai.getType()) & forMusic) > 0) {
                     return ai;

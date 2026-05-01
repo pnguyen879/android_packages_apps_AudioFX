@@ -24,7 +24,7 @@ import static org.lineageos.audiofx.service.AudioFxService.VIRTUALIZER_CHANGED;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioDeviceInfo;
-import android.media.AudioSystem;
+import android.media.AudioManager;
 import android.media.audiofx.PresetReverb;
 import android.os.Handler;
 import android.os.Looper;
@@ -87,10 +87,10 @@ class SessionManager implements AudioOutputChangeListener.AudioOutputChangedCall
 
     public void addSession(int stream) {
         synchronized (mAudioSessionsL) {
-            // Never auto-attach is someone is recording! We don't want to interfere
+            // Never auto-attach if someone is recording! We don't want to interfere
             // with any sort of loopback mechanisms.
-            final boolean recording = AudioSystem.isSourceActive(0) || AudioSystem.isSourceActive(
-                    6);
+            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            final boolean recording = am != null && !am.getActiveRecordingConfigurations().isEmpty();
             if (recording) {
                 Log.w(TAG, "Recording in progress, not performing auto-attach!");
                 return;

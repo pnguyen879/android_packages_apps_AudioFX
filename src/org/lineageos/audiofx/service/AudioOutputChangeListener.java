@@ -6,8 +6,6 @@
 
 package org.lineageos.audiofx.service;
 
-import static android.media.AudioDeviceInfo.convertDeviceTypeToInternalDevice;
-
 import android.content.Context;
 import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
@@ -15,6 +13,7 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.util.Log;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +32,16 @@ public class AudioOutputChangeListener extends AudioDeviceCallback {
         mContext = context;
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mHandler = handler;
+    }
+
+    private static int convertDeviceTypeToInternalDevice(int type) {
+        try {
+            Method method = AudioDeviceInfo.class.getMethod("convertDeviceTypeToInternalDevice",
+                    int.class);
+            return (int) method.invoke(null, type);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     public void addCallback(AudioOutputChangedCallback... callbacks) {
@@ -95,9 +104,18 @@ public class AudioOutputChangeListener extends AudioDeviceCallback {
         callback();
     }
 
+    private int getDevicesForStream(int stream) {
+        try {
+            Method method = AudioManager.class.getMethod("getDevicesForStream", int.class);
+            return (int) method.invoke(mAudioManager, stream);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     public List<AudioDeviceInfo> getConnectedOutputs() {
         final List<AudioDeviceInfo> outputs = new ArrayList<>();
-        final int forMusic = mAudioManager.getDevicesForStream(AudioManager.STREAM_MUSIC);
+        final int forMusic = getDevicesForStream(AudioManager.STREAM_MUSIC);
         for (AudioDeviceInfo ai : mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)) {
             if ((convertDeviceTypeToInternalDevice(ai.getType()) & forMusic) > 0) {
                 outputs.add(ai);

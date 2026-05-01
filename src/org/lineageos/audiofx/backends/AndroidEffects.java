@@ -188,7 +188,6 @@ class AndroidEffects extends EffectSetWithAndroidEq {
             return;
         }
         try {
-            e.setParameter(p, v);
         } catch (Exception ex) {
             Log.e(TAG, "Failed to set param " + p + " for effect " + e.getDescriptor().name, ex);
         }

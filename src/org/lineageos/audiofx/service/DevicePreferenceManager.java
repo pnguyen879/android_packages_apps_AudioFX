@@ -39,6 +39,7 @@ import org.lineageos.audiofx.activity.MasterConfigControl;
 import org.lineageos.audiofx.backends.EffectSet;
 import org.lineageos.audiofx.backends.EffectsFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -98,7 +99,7 @@ public class DevicePreferenceManager
     }
 
     private boolean hasPrefs(final String name) {
-        return mContext.getSharedPrefsFile(name).exists();
+        return new File(mContext.getDataDir(), "shared_prefs/" + name + ".xml").exists();
     }
 
     public boolean isGlobalEnabled() {

@@ -17,11 +17,9 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.media.audiofx.AudioEffect;
 import android.os.Bundle;
-import android.widget.ListView;
 
-import com.android.internal.app.AlertActivity;
-import com.android.internal.app.AlertController;
-import com.android.internal.app.AlertController.AlertParams.OnPrepareListViewListener;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.lineageos.audiofx.Compatibility;
 import org.lineageos.audiofx.Compatibility.Service;
@@ -32,19 +30,10 @@ import java.util.List;
 /**
  * shows a dialog that lets the user switch between control panels
  */
-public class ControlPanelPicker extends AlertActivity implements OnClickListener,
-        OnPrepareListViewListener {
+public class ControlPanelPicker extends AppCompatActivity implements OnClickListener {
 
-
-    private final DialogInterface.OnClickListener mItemClickListener =
-            new DialogInterface.OnClickListener() {
-
-                public void onClick(DialogInterface dialog, int which) {
-                    // Save the position of most recently clicked item
-                    mAlertParams.mCheckedItem = which;
-                }
-
-            };
+    private int mCheckedItem;
+    private Cursor mCursor;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -77,27 +66,28 @@ public class ControlPanelPicker extends AlertActivity implements OnClickListener
             }
         }
 
-        final AlertController.AlertParams p = mAlertParams;
-        p.mCursor = c;
-        p.mOnClickListener = mItemClickListener;
-        p.mLabelColumn = "title";
-        p.mIsSingleChoice = true;
-        p.mPositiveButtonText = getString(getOkStringResId());
-        p.mPositiveButtonListener = this;
-        p.mNegativeButtonText = getString(getCancelStringResId());
-        p.mOnPrepareListViewListener = this;
-        p.mTitle = getString(R.string.picker_title);
-        p.mCheckedItem = defpanelidx;
+        mCursor = c;
+        mCheckedItem = defpanelidx;
 
-        setupAlert();
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.picker_title)
+                .setSingleChoiceItems(c, defpanelidx, "title", (dialog, which) -> {
+                    mCheckedItem = which;
+                })
+                .setPositiveButton(getOkStringResId(), this)
+                .setNegativeButton(getCancelStringResId(), this)
+                .setOnDismissListener(dialog -> finish())
+                .show();
     }
 
     private int getOkStringResId() {
-        return getResources().getIdentifier("ok", "string", "android");
+        int resId = getResources().getIdentifier("ok", "string", "android");
+        return resId != 0 ? resId : android.R.string.ok;
     }
 
     private int getCancelStringResId() {
-        return getResources().getIdentifier("cancel", "string", "android");
+        int resId = getResources().getIdentifier("cancel", "string", "android");
+        return resId != 0 ? resId : android.R.string.cancel;
     }
 
     @Override
@@ -105,16 +95,11 @@ public class ControlPanelPicker extends AlertActivity implements OnClickListener
         if (which == DialogInterface.BUTTON_POSITIVE) {
             // set new default
             Intent updateIntent = new Intent(this, Service.class);
-            Cursor c = mAlertParams.mCursor;
-            c.moveToPosition(mAlertParams.mCheckedItem);
-            updateIntent.putExtra("defPackage", c.getString(2));
-            updateIntent.putExtra("defName", c.getString(3));
+            mCursor.moveToPosition(mCheckedItem);
+            updateIntent.putExtra("defPackage", mCursor.getString(2));
+            updateIntent.putExtra("defName", mCursor.getString(3));
             startService(updateIntent);
         }
-    }
-
-    @Override
-    public void onPrepareListView(ListView listView) {
-        //mAlertParams.mCheckedItem = mDefPanelPos;
+        finish();
     }
 }
