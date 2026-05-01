@@ -7,7 +7,6 @@
 package org.lineageos.audiofx.activity;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -19,6 +18,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -31,7 +31,7 @@ import org.lineageos.audiofx.fragment.AudioFxFragment;
 import org.lineageos.audiofx.service.AudioFxService;
 import org.lineageos.audiofx.service.DevicePreferenceManager;
 
-public class ActivityMusic extends Activity {
+public class ActivityMusic extends AppCompatActivity {
 
     public static final String TAG_AUDIOFX = "audiofx";
     public static final String EXTRA_CALLING_PACKAGE = "audiofx::extra_calling_package";
@@ -149,7 +149,7 @@ public class ActivityMusic extends Activity {
         mCurrentDeviceToggle.setOnCheckedChangeListener(mGlobalEnableToggleListener);
 
         if (savedInstanceState == null && findViewById(R.id.main_fragment) != null) {
-            getFragmentManager()
+            getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.main_fragment, new AudioFxFragment(), TAG_AUDIOFX)
                     .commit();
